@@ -84,7 +84,7 @@ $to = isset($_GET['to']) ? $_GET['to'] : date("Y-m-d");
 								<div class="col-3 border"></div>
 							</div>
 							<?php 
-							$jitems = $conn->query("SELECT j.*,a.name as account, g.type as `type` FROM `journal_items` j inner join account_list a on j.account_id = a.id inner join group_list g on j.group_id = g.id where j.journal_id = '{$row['id']}'");
+							$jitems = $conn->query("SELECT j.*,a.name as account FROM `journal_items` j inner join account_list a on j.account_id = a.id inner join group_list g on j.group_id = g.id where j.journal_id = '{$row['id']}'");
 							while($rowss = $jitems->fetch_assoc()):
                                 if($rowss['type'] == 1)
                                     $total_debit += $rowss['amount'];

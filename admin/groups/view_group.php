@@ -24,10 +24,10 @@ if(isset($_GET['id'])){
         <dd class='pl-4'>
             <p class=""><small><?= isset($description) ? ($description) : '' ?></small></p>
         </dd>
-        <dt class="text-muted">Group Type</dt>
+        <!-- <dt class="text-muted">Group Type</dt>
         <dd class='pl-4'>
             <p class=""><?= isset($type) ? ($type == 1 ? 'Debit' : 'Credit') : 'N/A' ?></p>
-        </dd>
+        </dd> -->
         <dt class="text-muted">Status</dt>
         <dd class='pl-4 fs-4 fw-bold'>
             <?php 

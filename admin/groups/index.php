@@ -40,7 +40,7 @@
 							<td class=""><?php echo date("Y-m-d H:i",strtotime($row['date_created'])) ?></td>
 							<td class=""><?php echo $row['name'] ?></td>
 							<td class=""><p class="m-0 truncate-1"><?php echo $row['description'] ?></p></td>
-							<td class="text-center"><?= $row['type'] == 1 ? 'Debit' : 'Credit' ?></td>
+							<!-- <td class="text-center"><?= $row['type'] == 1 ? 'Debit' : 'Credit' ?></td> -->
 							<td class="text-center">
 								<?php 
 									switch($row['status']){

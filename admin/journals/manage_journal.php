@@ -72,6 +72,14 @@ function format_num($number){
                 <input type="number" step="any" id="amount" class="form-control form-control-sm form-control-border text-right">
             </div>
             <div class="form-group col-md-6">
+                <label for="type" class="control-label">type</label>
+                <input type="number" step="any" id="type" class="form-control form-control-sm form-control-border text-right">
+                <!-- <select name="type" id="type" class="custom-select"  required>
+						<option value="1" <?php echo isset($row['id']) && $row['name'] == 1 ? 'selected': '' ?>>Debit</option>
+						<option value="2" <?php echo isset($row['id']) && $row['name'] == 2 ? 'selected': '' ?>>Credit</option>
+				</select> -->
+            </div>            
+            <div class="form-group col-md-6">
                 <button class="btn btn-default bg-gradient-navy btn-flat btn-sm" id="add_to_list" type="button"><i class="fa fa-plus"></i> Add Account</button>
             </div>
         </div>
@@ -95,7 +103,7 @@ function format_num($number){
             <tbody>
                 <?php 
                 if(isset($id)):
-                $jitems = $conn->query("SELECT j.*,a.name as account, g.name as `group`, g.type FROM `journal_items` j inner join account_list a on j.account_id = a.id inner join group_list g on j.group_id = g.id where journal_id = '{$id}'");
+                $jitems = $conn->query("SELECT j.*,a.name as account, g.name as `group` FROM `journal_items` j inner join account_list a on j.account_id = a.id inner join group_list g on j.group_id = g.id where journal_id = '{$id}'");
                 while($row = $jitems->fetch_assoc()):
                 ?>
                 <tr>
@@ -140,6 +148,7 @@ function format_num($number){
         <input type="hidden" name="account_id[]" value="">
         <input type="hidden" name="group_id[]" value="">
         <input type="hidden" name="amount[]" value="">
+        <input type="hidden" name="type[]" value="">
         <span class="account"></span>
     </td>
     <td class="group"></td>
@@ -181,15 +190,17 @@ function format_num($number){
             var account_id = $('#account_id').val()
             var group_id = $('#group_id').val()
             var amount = $('#amount').val()
+            var type = $('#type').val()
             var account_data = !!account[account_id] ? account[account_id] : {};
             var group_data = !!group[group_id] ? group[group_id] : {};
             var tr = $($('noscript#item-clone').html()).clone()
             tr.find('input[name="account_id[]"]').val(account_id)
             tr.find('input[name="group_id[]"]').val(group_id)
             tr.find('input[name="amount[]"]').val(amount)
+            tr.find('input[name="type[]"]').val(type)
             tr.find('.account').text(!!account_data.name ? account_data.name : "N/A")
             tr.find('.group').text(!!group_data.name ? group_data.name : "N/A")
-            if(!!group_data.type && group_data.type == 1)
+            if(!!type && type == 1)
                 tr.find('.debit_amount').text(parseFloat(amount).toLocaleString('en-US',{style:'decimal'}))
             else
                 tr.find('.credit_amount').text(parseFloat(amount).toLocaleString('en-US',{style:'decimal'}))
@@ -202,6 +213,7 @@ function format_num($number){
             $('#account_id').val('').trigger('change')
             $('#group_id').val('').trigger('change')
             $('#amount').val('').trigger('change')
+            $('#type').val('').trigger('change')
         })
         $('#uni_modal #journal-form').submit(function(e){
             e.preventDefault();

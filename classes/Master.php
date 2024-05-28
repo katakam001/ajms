@@ -163,10 +163,10 @@ Class Master extends DBConnection {
 			$this->conn->query("DELETE FROM `journal_items` where journal_id = '{$jid}'");
 			foreach($account_id as $k=>$v){
 				if(!empty($data)) $data .=", ";
-				$data .= "('{$jid}','{$v}','{$group_id[$k]}','{$amount[$k]}')";
+				$data .= "('{$jid}','{$v}','{$group_id[$k]}','{$amount[$k]}','{$type[$k]}')";
 			}
 			if(!empty($data)){
-				$sql = "INSERT INTO `journal_items` (`journal_id`,`account_id`,`group_id`,`amount`) VALUES {$data}";
+				$sql = "INSERT INTO `journal_items` (`journal_id`,`account_id`,`group_id`,`amount`,`type`) VALUES {$data}";
 				$save2 = $this->conn->query($sql);
 				if($save2){
 					$resp['status'] = 'success';

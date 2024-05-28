@@ -64,7 +64,7 @@ function format_num($number){
 								<div class="col-3 border"></div>
 							</div>
 							<?php 
-							$jitems = $conn->query("SELECT j.*,a.name as account, g.type as `type` FROM `journal_items` j inner join account_list a on j.account_id = a.id inner join group_list g on j.group_id = g.id where j.journal_id = '{$row['id']}'");
+							$jitems = $conn->query("SELECT j.*,a.name as account FROM `journal_items` j inner join account_list a on j.account_id = a.id inner join group_list g on j.group_id = g.id where j.journal_id = '{$row['id']}'");
 							while($rowss = $jitems->fetch_assoc()):
 							?>
 							<div class="d-flex w-100">
@@ -114,7 +114,7 @@ function format_num($number){
 	function delete_book($id){
 		start_loader();
 		$.ajax({
-			url:_base_url_+"classes/Master.php?f=delete_book",
+			url:_base_url_+"classes/Master.php?f=delete_journal",
 			method:"POST",
 			data:{id: $id},
 			dataType:"json",

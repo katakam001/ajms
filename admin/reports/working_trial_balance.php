@@ -3,10 +3,23 @@ function format_num($number){
 	$decimals = 0;
 	$num_ex = explode('.',$number);
 	$decimals = isset($num_ex[1]) ? strlen($num_ex[1]) : 0 ;
-	return number_format($number,$decimals);
+	return number_format($number,2);
 }
-$from = isset($_GET['from']) ? $_GET['from'] : date("Y-m-d",strtotime(date('Y-m-d')." -1 week"));
-$to = isset($_GET['to']) ? $_GET['to'] : date("Y-m-d");
+function getfinancialYear($YearStart,$YearEnd){
+	return date("Y" , strtotime($YearStart))  . '-' . date("Y",strtotime($YearEnd));
+}
+function getfinancialStartYear($Year){
+	return "{$Year}-04-01";
+}
+function getfinancialEndYear($Year){
+	return "{$Year}-03-31";
+}
+$financialYearStart =  getfinancialStartYear(date("Y")); // Get the current year
+$financialYearEnd = getfinancialEndYear(date("Y")+1);
+$from = isset($_GET['from']) ? $_GET['from'] :  $financialYearStart;
+$to = isset($_GET['to']) ? $_GET['to'] : $financialYearEnd;
+$financialYear = getfinancialYear($financialYearStart,$financialYearEnd);
+$id= $_settings->userdata('id');
 ?>
 <style>
 	th.p-0, td.p-0{
@@ -15,7 +28,7 @@ $to = isset($_GET['to']) ? $_GET['to'] : date("Y-m-d");
 </style>
 <div class="card card-outline card-primary">
 	<div class="card-header">
-		<h3 class="card-title">Working Trial Balance</h3>
+        <h3 class="card-title">Working Trial Balance for financial Year: <?=  $financialYear  ?></h3>
 		<div class="card-tools">
 		</div>
 	</div>
@@ -51,13 +64,14 @@ $to = isset($_GET['to']) ? $_GET['to'] : date("Y-m-d");
 			<table class="table table-hover table-bordered">
                 <thead>
                     <tr>
-                        <th class="text-center">Date</th>
-                        <th class="text-center">Description</th>
-                        <th class="text-center">Ref. Code.</th>
-                        <th class="text-center">Amount</th>
+                        <th class="text-left">Account Name</th>
+                        <th class="text-left">debit</th>
+                        <th class="text-left">Credit</th>
+                        <th class="text-left">Balance</th>
                     </tr>
                 </thead>
                 <tbody>
+
                     <?php 
                     $balance = 0;
                     $journal = $conn->query("SELECT * FROM `journal_entries` where date(journal_date) BETWEEN '{$from}' and '{$to}'");
@@ -67,30 +81,35 @@ $to = isset($_GET['to']) ? $_GET['to'] : date("Y-m-d");
                     }
                     $accounts = $conn->query("SELECT * FROM `account_list`  where id in (SELECT account_id FROM `journal_items` where journal_id in (SELECT id FROM `journal_entries` where date(journal_date) BETWEEN '{$from}' and '{$to}' ))");
                     while($arow = $accounts->fetch_assoc()):
-                        $items = $conn->query("SELECT j.*,g.type FROM `journal_items` j inner join group_list g on j.group_id = g.id where j.account_id = '{$arow['id']}' and j.journal_id in (SELECT id FROM `journal_entries` where date(journal_date) BETWEEN '{$from}' and '{$to}' )");
+                        $items = $conn->query("SELECT j.* FROM `journal_items` j inner join group_list g on j.group_id = g.id where j.account_id = '{$arow['id']}' and j.journal_id in (SELECT id FROM `journal_entries` where date(journal_date) BETWEEN '{$from}' and '{$to}' )");
                     ?>
-                    <tr>
-                        <th colspan="4"><?= $arow['name'] ?></th>
-                    </tr>
+
+
                     <?php 
+                    $credit_bal=0;
+                    $debit_bal=0;                    
                     while($irow = $items->fetch_assoc()): 
-                        if($irow['type'] == 1)
+                        if($irow['type'] == 1){
+                            $debit_bal += $irow['amount'];
                             $balance += $irow['amount'];
-                        else    
+                        }
+                        else{
+                            $credit_bal += $irow['amount'];    
                             $balance -= $irow['amount'];
+                        }
                     ?>
-                        <tr>
-                            <td><?= isset($journal_arr[$irow['journal_id']]) ? date("M d, Y",strtotime($journal_arr[$irow['journal_id']]['journal_date'])) : "" ?></td>
-                            <td><?= isset($journal_arr[$irow['journal_id']]) ? $journal_arr[$irow['journal_id']]['description'] : "" ?></td>
-                            <td><?= isset($journal_arr[$irow['journal_id']]) ? $journal_arr[$irow['journal_id']]['code'] : "" ?></td>
-                            <td class="text-right"><?= $irow['type'] == 1 ? format_num($irow['amount']) : '-'.(format_num($irow['amount']))  ?></td>
-                        </tr>
                     <?php endwhile; ?>
+                    <tr>
+                        <th class="text-left" colspan="1"><?= $arow['name'] ?></th>
+                        <th class="text-left" colspan="1"><?= format_num($debit_bal) ?></th>
+                        <th class="text-left" colspan="1"><?= '-'.format_num($credit_bal) ?></th>
+                        <th class="text-left" colspan="1"><?= format_num($debit_bal-$credit_bal) ?></th>
+                    </tr>
 				<?php endwhile; ?>
                 </tbody>
                 <tfoot>
                     <th colspan="3" class="text-center">Total</th>
-                    <th class="text-right"><?= format_num($balance) ?></th>
+                    <th class="text-left"><?= format_num($balance) ?></th>
                 </tfoot>
 			</table>
 		</div>
