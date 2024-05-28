@@ -98,22 +98,23 @@ $id= $_settings->userdata('id');
                         $groupByAccountByBalance[$arow['group_name']][]=$arow;
                     }
                     $groupNames = array_keys($groupByAccountByBalance);
-                    $i = 0; // Initialize the index
+                    $i = 0; 
                     
                     while (isset($groupNames[$i])):
                         $groupName = $groupNames[$i];
-                        $i++; // Increment the index
+                        $i++; 
                     ?>
                     <tr>
-                        <th class="text-center" colspan="4"><?= $groupName ?></th>
+                        <th colspan="4" class="text-center"><?= $groupName ?></th>
                     </tr> 
-                    <?php 
+                    <?php
+                    $groupBalance = 0; 
                     $Accounts = $groupByAccountByBalance[$groupName];
                     $j=0;
                     while (isset($Accounts[$j])): 
                         $accountRow =$Accounts[$j];
-                        $j++; // Increment the index
-                    
+                        $groupBalance+= $accountRow['balance'];
+                        $j++;                     
                     ?> 
                      <tr>
                         <th class="text-left" colspan="1"><?= $accountRow['account_name'] ?></th>
@@ -122,6 +123,8 @@ $id= $_settings->userdata('id');
                         <th class="text-left" colspan="1"><?= format_num($accountRow['balance']) ?></th>
                     </tr>                    
                     <?php endwhile; ?> 
+                    <th colspan="3" class="text-left">Balance</th>
+                    <th class="text-left"><?= format_num($groupBalance) ?></th>
                     <?php endwhile; ?>  
                 </tbody>
                 <tfoot>
