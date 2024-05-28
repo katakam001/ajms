@@ -73,39 +73,56 @@ $id= $_settings->userdata('id');
                 <tbody>
 
                     <?php 
-                    $balance = 0;
-                    $journal = $conn->query("SELECT * FROM `journal_entries` where date(journal_date) BETWEEN '{$from}' and '{$to}'");
-                    $journal_arr = [];
-                    while($row = $journal->fetch_assoc()){
-                        $journal_arr[$row['id']] = $row;
+                     $balance = 0;
+                     $groupByAccountByBalance=[];
+                    $groupByAccount = $conn->query("select g.id AS group_id,
+                    g.name AS group_name,
+                    al.id AS account_id,
+                    al.name AS account_name,
+                    COALESCE(SUM(CASE WHEN ji.type = 1 THEN ji.amount ELSE 0 END), 0) AS total_debit,
+                    COALESCE(SUM(CASE WHEN ji.type = 2 THEN ji.amount ELSE 0 END), 0) AS total_credit,
+                    COALESCE(SUM(CASE WHEN ji.type = 1 THEN ji.amount ELSE -ji.amount END), 0) AS balance
+                FROM
+                    journal_items ji
+                JOIN
+                    group_list g ON ji.group_id  = g.id
+                LEFT JOIN
+                    account_list al  ON ji.account_id  = al.id
+                WHERE ji.journal_id IN (SELECT id FROM journal_entries where user_id = '{$id}' and date(journal_date) BETWEEN '{$from}' and '{$to}' )
+                GROUP BY
+                    g.id, al.id
+                ORDER BY
+                    g.id, al.id");
+                    while($arow = $groupByAccount->fetch_assoc()){
+                        $balance+= $arow['balance'];
+                        $groupByAccountByBalance[$arow['group_name']][]=$arow;
                     }
-                    $accounts = $conn->query("SELECT * FROM `account_list`  where id in (SELECT account_id FROM `journal_items` where journal_id in (SELECT id FROM `journal_entries` where date(journal_date) BETWEEN '{$from}' and '{$to}' ))");
-                    while($arow = $accounts->fetch_assoc()):
-                        $items = $conn->query("SELECT j.* FROM `journal_items` j inner join group_list g on j.group_id = g.id where j.account_id = '{$arow['id']}' and j.journal_id in (SELECT id FROM `journal_entries` where date(journal_date) BETWEEN '{$from}' and '{$to}' )");
+                    $groupNames = array_keys($groupByAccountByBalance);
+                    $i = 0; // Initialize the index
+                    
+                    while (isset($groupNames[$i])):
+                        $groupName = $groupNames[$i];
+                        $i++; // Increment the index
                     ?>
-
-
-                    <?php 
-                    $credit_bal=0;
-                    $debit_bal=0;                    
-                    while($irow = $items->fetch_assoc()): 
-                        if($irow['type'] == 1){
-                            $debit_bal += $irow['amount'];
-                            $balance += $irow['amount'];
-                        }
-                        else{
-                            $credit_bal += $irow['amount'];    
-                            $balance -= $irow['amount'];
-                        }
-                    ?>
-                    <?php endwhile; ?>
                     <tr>
-                        <th class="text-left" colspan="1"><?= $arow['name'] ?></th>
-                        <th class="text-left" colspan="1"><?= format_num($debit_bal) ?></th>
-                        <th class="text-left" colspan="1"><?= '-'.format_num($credit_bal) ?></th>
-                        <th class="text-left" colspan="1"><?= format_num($debit_bal-$credit_bal) ?></th>
-                    </tr>
-				<?php endwhile; ?>
+                        <th class="text-center" colspan="4"><?= $groupName ?></th>
+                    </tr> 
+                    <?php 
+                    $Accounts = $groupByAccountByBalance[$groupName];
+                    $j=0;
+                    while (isset($Accounts[$j])): 
+                        $accountRow =$Accounts[$j];
+                        $j++; // Increment the index
+                    
+                    ?> 
+                     <tr>
+                        <th class="text-left" colspan="1"><?= $accountRow['account_name'] ?></th>
+                        <th class="text-left" colspan="1"><?= format_num($accountRow['total_debit']) ?></th>
+                        <th class="text-left" colspan="1"><?= format_num($accountRow['total_credit']) ?></th>
+                        <th class="text-left" colspan="1"><?= format_num($accountRow['balance']) ?></th>
+                    </tr>                    
+                    <?php endwhile; ?> 
+                    <?php endwhile; ?>  
                 </tbody>
                 <tfoot>
                     <th colspan="3" class="text-center">Total</th>
