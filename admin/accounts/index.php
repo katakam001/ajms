@@ -38,7 +38,7 @@
 				<tbody>
 					<?php 
 						$i = 1;
-						$qry = $conn->query("SELECT * from `account_list` where delete_flag = 0 order by `name` asc ");
+						$qry = $conn->query("SELECT * from `account_list` where user_id = '{$_settings->userdata('id')}' and delete_flag = 0 order by `name` asc ");
 						while($row = $qry->fetch_assoc()):
 					?>
 						<tr>

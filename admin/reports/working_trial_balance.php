@@ -123,9 +123,9 @@ $id = $_settings->userdata('id');
                             $j++;
                         ?>
                             <tr>
-                                <th class="text-left" colspan="1"><?= $accountRow['account_name'] ?></th>
-                                <th class="text-left" colspan="1"><?= $accountRow['total_debit'] > 0 ? format_num($accountRow['total_debit']) : "" ?></th>
-                                <th class="text-left" colspan="1"><?= $accountRow['total_credit'] < 0 ? format_num(abs($accountRow['total_credit'])) : "" ?></th>
+                                <th class="text-left account_data" colspan="1"><?= $accountRow['account_name'] ?><a href="?page=reports/list&acctId=<?php echo $accountRow['account_id']  ?>&from=<?php echo $from  ?>&to=<?php echo $to ?>"  class="nav-link text-light nav-user_list"></a></th>
+                                <th class="text-left" colspan="1"><?= $accountRow['balance'] > 0 ? format_num($accountRow['balance']) : "" ?></th>
+                                <th class="text-left" colspan="1"><?= $accountRow['balance'] < 0 ? format_num(abs($accountRow['balance'])) : "" ?></th>
                                 <th class="text-left" colspan="1"></th>
                             </tr>
                         <?php endwhile; ?>

@@ -31,10 +31,11 @@ Class Master extends DBConnection {
 				$data .= " `{$k}`='{$v}' ";
 			}
 		}
+		$data .= ", `user_id`='{$this->settings->userdata('id')}' ";
 		if(empty($id)){
 			$sql = "INSERT INTO `group_list` set {$data} ";
 		}else{
-			$sql = "UPDATE `group_list` set {$data} where id = '{$id}' ";
+			$sql = "UPDATE `group_list` set {$data} where user_id = '{$this->settings->userdata('id')}' and id = '{$id}' ";
 		}
 		$check = $this->conn->query("SELECT * FROM `group_list` where `name` = '{$name}' and delete_flag = 0 ".($id > 0 ? " and id != '{$id}'" : ""));
 		if($check->num_rows > 0){
@@ -61,7 +62,7 @@ Class Master extends DBConnection {
 	}
 	function delete_group(){
 		extract($_POST);
-		$del = $this->conn->query("UPDATE `group_list` set delete_flag = 1 where id = '{$id}'");
+		$del = $this->conn->query("UPDATE `group_list` set delete_flag = 1 where user_id = '{$this->settings->userdata('id')}' and id = '{$id}'");
 		if($del){
 			$resp['status'] = 'success';
 			$this->settings->set_flashdata('success'," Account's Group has been deleted successfully.");
@@ -82,12 +83,13 @@ Class Master extends DBConnection {
 				$data .= " `{$k}`='{$v}' ";
 			}
 		}
+		$data .= ", `user_id`='{$this->settings->userdata('id')}' ";
 		if(empty($id)){
 			$sql = "INSERT INTO `account_list` set {$data} ";
 		}else{
-			$sql = "UPDATE `account_list` set {$data} where id = '{$id}' ";
+			$sql = "UPDATE `account_list` set {$data} where user_id = '{$this->settings->userdata('id')}' and id = '{$id}' ";
 		}
-		$check = $this->conn->query("SELECT * FROM `account_list` where `name` ='{$name}' and delete_flag = 0 ".($id > 0 ? " and id != '{$id}' " : ""))->num_rows;
+		$check = $this->conn->query("SELECT * FROM `account_list` where user_id = '{$this->settings->userdata('id')}' and `name` ='{$name}' and delete_flag = 0 ".($id > 0 ? " and id != '{$id}' " : ""))->num_rows;
 		if($check > 0){
 			$resp['status'] = 'failed';
 			$resp['msg'] = " Account's Name already exists.";
@@ -112,7 +114,7 @@ Class Master extends DBConnection {
 	}
 	function delete_account(){
 		extract($_POST);
-		$del = $this->conn->query("UPDATE `account_list` set delete_flag = 1 where id = '{$id}'");
+		$del = $this->conn->query("UPDATE `account_list` set delete_flag = 1 where user_id = '{$this->settings->userdata('id')}' and id = '{$id}'");
 		if($del){
 			$resp['status'] = 'success';
 			$this->settings->set_flashdata('success'," Account has been deleted successfully.");
@@ -323,12 +325,12 @@ switch ($action) {
 	case 'update_reservation_status':
 		echo $Master->update_reservation_status();
 	break;
-	case 'save_message':
-		echo $Master->save_message();
-	break;
-	case 'delete_message':
-		echo $Master->delete_message();
-	break;
+	// case 'save_message':
+	// 	echo $Master->save_message();
+	// break;
+	// case 'delete_message':
+	// 	echo $Master->delete_message();
+	// break;
 	case 'save_group':
 		echo $Master->save_group();
 	break;

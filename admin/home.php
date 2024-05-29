@@ -17,7 +17,7 @@
             <span class="info-box-text">Active Account Groups</span>
             <span class="info-box-number text-right">
                 <?php 
-                    echo $conn->query("SELECT * FROM `group_list` where delete_flag = 0 and status = 1 ")->num_rows;
+                    echo $conn->query("SELECT * FROM `group_list` where user_id = '{$_settings->userdata('id')}' and delete_flag = 0 and status = 1 ")->num_rows;
                 ?>
             </span>
             </div>
@@ -33,7 +33,7 @@
             <span class="info-box-text">Active Accounts</span>
             <span class="info-box-number text-right">
                 <?php 
-                    echo $conn->query("SELECT * FROM `account_list` where delete_flag= 0 and status = 1 ")->num_rows;
+                    echo $conn->query("SELECT * FROM `account_list` where user_id = '{$_settings->userdata('id')}' and delete_flag= 0 and status = 1 ")->num_rows;
                 ?>
             </span>
             </div>
@@ -49,7 +49,7 @@
             <span class="info-box-text">Journal Entries</span>
             <span class="info-box-number text-right">
                 <?php 
-                    echo $conn->query("SELECT * FROM `journal_entries` ")->num_rows;
+                    echo $conn->query("SELECT * FROM `journal_entries` where user_id = '{$_settings->userdata('id')}'")->num_rows;
                 ?>
             </span>
             </div>
